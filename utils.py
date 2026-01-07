@@ -54,4 +54,34 @@ class Person(Human):
         print(f'{self.name} is Talking...')
     
     def walk(self):
-        print(f'{self.name} is Walking...') 
+        print(f'{self.name} is Walking...')
+
+#Function for the automation of changes to a file in a specific usecase
+import openpyxl as xl
+from openpyxl.chart import BarChart, Reference
+
+def process_workbook(filename, multi):
+    wb = xl.load_workbook(filename)
+    sheet = wb['Sheet1']
+    target_col = sheet.max_column + 1
+    for row in range(2, sheet.max_row + 1):
+        cell = sheet.cell(row, target_col-1)
+        corrected_price = cell.value * multi
+        corrected_price_cell = sheet.cell(row, target_col)
+        corrected_price_cell.value = corrected_price
+
+    chartValues = Reference(sheet,
+            min_row = 2,
+            max_row = sheet.max_row,
+            min_col = sheet.max_column,
+            max_col = sheet.max_column)
+
+    chart = BarChart()
+    
+    chart_cell = sheet.cell(2, sheet.max_column+1)
+
+    chart.add_data(chartValues)
+    sheet.add_chart(chart, chart_cell.column_letter + '2')
+
+    wb.save(filename)
+ 
